@@ -1,6 +1,6 @@
 {
-  "name": "midi-challenger",
-  "description": "Piano keyboard teaching tool and game.",
+  "name": "midi-keyboard-exercises",
+  "description": "Piano keyboard muscle memory tool and game.",
   "version": "0.1.0",
   "repository": {
     "type": "???",
