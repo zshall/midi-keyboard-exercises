@@ -1,3 +1,6 @@
 <template>
-  <router-view></router-view>
+  <router-view if.bind="midiService.isActive"></router-view>
+  <section if.bind="!midiService.isActive">
+    <div if.bind="midiService.isUnsupported">Your browser doesn't support web MIDI. Try using <a href="https://caniuse.com/#feat=midi">one of these browsers</a>.</div>
+  </section>
 </template>
