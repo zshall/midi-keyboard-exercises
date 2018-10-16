@@ -1,6 +1,16 @@
 <template>
 <h1>${message}</h1>
-<select>
-  <option repeat.for="output of midiService.outputNames">${output}</option>
+
+<p><b>MIDI input</b></p>
+
+<select value.bind="selectedInputId">
+  <option repeat.for="input of midiService.inputNames()" model.bind="input.key">${input.value}</option>
+</select>
+
+<button click.delegate="connect()">Connect</button>
+
+<p><b>MIDI output</b></p>
+<select value.bind="selectedOutputId">
+  <option repeat.for="output of midiService.outputNames()" model.bind="input.key">${output.value}</option>
 </select>
 </template>

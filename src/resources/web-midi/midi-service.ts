@@ -13,11 +13,9 @@ export class MidiService {
       this.midiAccess = await navigator.requestMIDIAccess();
 
       console.log('MIDI ready!');
-
-      // for (let entry of this.midiAccess.inputs) {
-      //   console.log(entry[1]);
-      // }
-      console.log(this.inputNames);
+      for (var input of this.midiAccess.inputs.keys()) {
+        console.log(input);
+      }
 
       this.isActive = true;
     } else {
@@ -29,16 +27,39 @@ export class MidiService {
 
   private getNames(enumerator: Map<string, WebMidi.MIDIPort>) {
     const names = [];
-    enumerator.forEach(p => names.push(p.name));
+    for (var key of enumerator.keys()) {
+      names.push({
+        key,
+        value: enumerator.get(key).name
+      });
+    }
     return names;
   }
 
-  get inputNames() {
+  inputNames() {
     return this.getNames(this.midiAccess.inputs);
   }
 
-  get outputNames() {
+  outputNames() {
     return this.getNames(this.midiAccess.outputs);
   }
   
+  captureInput(key: string) {
+    const input = this.midiAccess.inputs.get(key);
+    if (input) {
+      input.onmidimessage = this.processIncomingMidiMessage;
+    }
+  }
+
+  releaseInput(key: string) {
+    const input = this.midiAccess.inputs.get(key);
+    if (input) {
+      input.onmidimessage = null;
+    }
+  }
+
+  processIncomingMidiMessage(midiMessage: WebMidi.MIDIMessageEvent) {
+    console.log(midiMessage);
+  }
+
 }
