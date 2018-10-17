@@ -10,9 +10,10 @@
 <button click.delegate="connect()">Connect</button>
 
 <div class="messages">
-  <div repeat.for="message of messages">
-    ${message}
-  </div>
+  <h3>Notes playing:</h3>
+  <li repeat.for="message of midiService.currentNotesPlaying">
+    C:${message.channel} ${message.note} ${message.octave}
+  </li>
 </div>
 
 <p><b>MIDI output</b></p>

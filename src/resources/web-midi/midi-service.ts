@@ -1,3 +1,4 @@
+import { MidiMessage } from './midi-message';
 import { MessageDecodingService } from './message-decoding-service';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { autoinject } from "aurelia-framework";
@@ -7,6 +8,8 @@ import { Status } from './midi-constants';
 export class MidiService {
   isActive: boolean;
   isUnsupported: boolean;
+
+  currentNotesPlaying: MidiMessage[] = [];
 
   /**
    * Constructs the MIDI service
@@ -57,13 +60,15 @@ export class MidiService {
     const input = this.midiAccess.inputs.get(key);
     if (input) {
       input.onmidimessage = midiMessage => {
-        this.eventAggregator.publish('midiEvent', midiMessage);
+        //this.eventAggregator.publish('midiEvent', midiMessage);
         const decoded = this.messageDecodingService.decodeMessage(midiMessage);
         switch(decoded.status) {
           case Status.NOTE_OFF:
+            this.removeCurrentNote(decoded);
             this.eventAggregator.publish('noteOff', decoded);
             break;
           case Status.NOTE_ON:
+            this.currentNotesPlaying.push(decoded);
             this.eventAggregator.publish('noteOn', decoded);
             break;
         }
@@ -78,4 +83,13 @@ export class MidiService {
     }
   }
 
+  removeCurrentNote(decoded: MidiMessage) {
+    for (let i = 0; i < this.currentNotesPlaying.length; i++) {
+      const val = this.currentNotesPlaying[i];
+      if (val.channel === decoded.channel && val.octave == decoded.octave
+        && val.note === decoded.note && val.id == decoded.id) {
+        return this.currentNotesPlaying.splice(i,1);
+      }
+    }
+  }
 }

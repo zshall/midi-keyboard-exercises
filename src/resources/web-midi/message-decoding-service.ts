@@ -23,13 +23,14 @@ export class MessageDecodingService {
         midiMessage.octave = this.decodeOctave(data1);
         midiMessage.note = this.decodeNote(data1);
         midiMessage.velocity = data2;
+        midiMessage.id = (midiMessage.target as any).id;
         break;
     }
 
     return midiMessage;
   }
 
-  decodeStatus(rawStatus): Status {
+  private decodeStatus(rawStatus): Status {
     if (rawStatus >= Channels.NOTE_OFF_CHAN_1 && rawStatus <= Channels.NOTE_OFF_CHAN_16) {
       return Status.NOTE_OFF;
     }
@@ -39,7 +40,7 @@ export class MessageDecodingService {
     return Status.NOT_YET_SUPPORTED;
   }
 
-  decodeChannel(midiStatus: Status, rawStatus: number): number {
+  private decodeChannel(midiStatus: Status, rawStatus: number): number {
     if (midiStatus === Status.NOTE_OFF) {
       return rawStatus - Channels.NOTE_OFF_CHAN_1 + 1;
     }
@@ -49,11 +50,11 @@ export class MessageDecodingService {
     return 0;
   }
 
-  decodeOctave(noteData: number): number {
+  private decodeOctave(noteData: number): number {
     return Math.floor(noteData / 12);
   }
 
-  decodeNote(noteData: number) {
+  private decodeNote(noteData: number) {
     return Notes[noteData % 12];
   }
 }
