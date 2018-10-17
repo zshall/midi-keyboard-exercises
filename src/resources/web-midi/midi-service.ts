@@ -1,8 +1,17 @@
+import { MessageDecodingService } from './message-decoding-service';
+import { EventAggregator } from "aurelia-event-aggregator";
+import { autoinject } from "aurelia-framework";
+import { Status } from './midi-constants';
+
+@autoinject
 export class MidiService {
+  isActive: boolean;
+  isUnsupported: boolean;
+
   /**
    * Constructs the MIDI service
    */
-  constructor(private midiAccess: WebMidi.MIDIAccess, public isActive: boolean, public isUnsupported: boolean) {
+  constructor(private midiAccess: WebMidi.MIDIAccess, private eventAggregator: EventAggregator, private messageDecodingService: MessageDecodingService) {
     this.activate();
   }
 
@@ -47,7 +56,18 @@ export class MidiService {
   captureInput(key: string) {
     const input = this.midiAccess.inputs.get(key);
     if (input) {
-      input.onmidimessage = this.processIncomingMidiMessage;
+      input.onmidimessage = midiMessage => {
+        this.eventAggregator.publish('midiEvent', midiMessage);
+        const decoded = this.messageDecodingService.decodeMessage(midiMessage);
+        switch(decoded.status) {
+          case Status.NOTE_OFF:
+            this.eventAggregator.publish('noteOff', decoded);
+            break;
+          case Status.NOTE_ON:
+            this.eventAggregator.publish('noteOn', decoded);
+            break;
+        }
+      }
     }
   }
 
@@ -56,10 +76,6 @@ export class MidiService {
     if (input) {
       input.onmidimessage = null;
     }
-  }
-
-  processIncomingMidiMessage(midiMessage: WebMidi.MIDIMessageEvent) {
-    console.log(midiMessage);
   }
 
 }

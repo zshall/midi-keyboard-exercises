@@ -9,6 +9,12 @@
 
 <button click.delegate="connect()">Connect</button>
 
+<div class="messages">
+  <div repeat.for="message of messages">
+    ${message}
+  </div>
+</div>
+
 <p><b>MIDI output</b></p>
 <select value.bind="selectedOutputId">
   <option repeat.for="output of midiService.outputNames()" model.bind="input.key">${output.value}</option>
