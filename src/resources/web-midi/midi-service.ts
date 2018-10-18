@@ -1,23 +1,31 @@
+import { SettingService } from './../settings/setting-service';
 import { MidiMessage } from './midi-message';
 import { MessageDecodingService } from './message-decoding-service';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { autoinject } from "aurelia-framework";
 import { Status } from './midi-constants';
+import {BindingSignaler} from 'aurelia-templating-resources';
 
 @autoinject
 export class MidiService {
   isActive: boolean;
   isUnsupported: boolean;
-
   currentNotesPlaying: MidiMessage[] = [];
 
   /**
    * Constructs the MIDI service
    */
-  constructor(private midiAccess: WebMidi.MIDIAccess, private eventAggregator: EventAggregator, private messageDecodingService: MessageDecodingService) {
+  constructor(private midiAccess: WebMidi.MIDIAccess,
+              private eventAggregator: EventAggregator,
+              private messageDecodingService: MessageDecodingService,
+              private settingService: SettingService,
+              private signaler: BindingSignaler) {
     this.activate();
   }
 
+  /**
+   * Requests MIDI access and starts up
+   */
   async activate() {
     if (navigator.requestMIDIAccess) {
       console.log('Rarin to rip.');
@@ -30,6 +38,10 @@ export class MidiService {
       }
 
       this.isActive = true;
+
+      if (this.settingService.preferredMidiInput && this.settingService.midiAutoconnect) {
+        this.captureInput(this.settingService.preferredMidiInput);
+      }
     } else {
       console.error('This browser does not support web MIDI :(');
 
@@ -37,6 +49,10 @@ export class MidiService {
     }
   }
 
+  /**
+   * Returns the names of the MIDI inputs or outputs for display
+   * @param enumerator list of MIDI inputs and outputs
+   */
   private getNames(enumerator: Map<string, WebMidi.MIDIPort>) {
     const names = [];
     for (var key of enumerator.keys()) {
@@ -48,17 +64,28 @@ export class MidiService {
     return names;
   }
 
+  /**
+   * Returns the list of MIDI input devices
+   */
   inputNames() {
     return this.getNames(this.midiAccess.inputs);
   }
 
+  /**
+   * Returns the list of MIDI output devices
+   */
   outputNames() {
     return this.getNames(this.midiAccess.outputs);
   }
   
-  captureInput(key: string) {
-    const input = this.midiAccess.inputs.get(key);
+  /**
+   * Subscribes to the MIDI input's `onmidimessage` event
+   * @param connectionId the key of the midiAccess.inputs enumerator
+   */
+  captureInput(connectionId: string) {
+    const input = this.midiAccess.inputs.get(connectionId);
     if (input) {
+      this.settingService.preferredMidiInput = connectionId;
       input.onmidimessage = midiMessage => {
         //this.eventAggregator.publish('midiEvent', midiMessage);
         const decoded = this.messageDecodingService.decodeMessage(midiMessage);
@@ -73,21 +100,39 @@ export class MidiService {
             break;
         }
       }
+      this.signaler.signal('connect-signal');
+    } else {
+      this.settingService.midiAutoconnect = false;
     }
   }
 
-  releaseInput(key: string) {
-    const input = this.midiAccess.inputs.get(key);
+  /**
+   * Disconnects from the MIDI input
+   * @param connectionId the key of the midiAccess.inputs enumerator
+   */
+  releaseInput(connectionId: string) {
+    const input = this.midiAccess.inputs.get(connectionId);
     if (input) {
       input.onmidimessage = null;
+      this.settingService.midiAutoconnect = false;
+      this.signaler.signal('connect-signal');
     }
   }
 
-  removeCurrentNote(decoded: MidiMessage) {
+  isConnected(connectionId: string) {
+    const input = this.midiAccess.inputs.get(connectionId);
+    return input && input.onmidimessage;
+  }
+
+  /**
+   * Removes the note from the list of currently playing notes
+   * @param note the note to remove from the list
+   */
+  removeCurrentNote(note: MidiMessage) {
     for (let i = 0; i < this.currentNotesPlaying.length; i++) {
       const val = this.currentNotesPlaying[i];
-      if (val.channel === decoded.channel && val.octave == decoded.octave
-        && val.note === decoded.note && val.id == decoded.id) {
+      if (val.channel === note.channel && val.octave == note.octave
+        && val.note === note.note && val.id == note.id) {
         return this.currentNotesPlaying.splice(i,1);
       }
     }

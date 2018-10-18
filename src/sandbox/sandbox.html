@@ -7,7 +7,7 @@
   <option repeat.for="input of midiService.inputNames()" model.bind="input.key">${input.value}</option>
 </select>
 
-<button click.delegate="connect()">Connect</button>
+<button click.delegate="connect()">${midiService.isConnected(selectedInputId) ? 'Disconnect' : 'Connect' & signal: 'connect-signal'}</button>
 
 <div class="messages">
   <h3>Notes playing:</h3>
