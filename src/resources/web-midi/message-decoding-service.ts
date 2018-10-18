@@ -1,5 +1,6 @@
-import { Channels, Status, Notes } from './midi-constants';
+import { Channels, Status } from './midi-constants';
 import { MidiMessage } from "./midi-message";
+import { Note } from "tonal";
 
 export class MessageDecodingService {
   /**
@@ -20,10 +21,17 @@ export class MessageDecodingService {
       case Status.NOTE_OFF:
       case Status.NOTE_ON:
         midiMessage.channel = this.decodeChannel(midiMessage.status, rawStatus);
-        midiMessage.octave = this.decodeOctave(data1);
-        midiMessage.note = this.decodeNote(data1);
         midiMessage.velocity = data2;
         midiMessage.id = (midiMessage.target as any).id;
+
+        const note = Note.fromMidi(data1, true);
+        if (note) {
+          midiMessage.noteProps = Note.props(note);
+          midiMessage.note = midiMessage.noteProps.name;
+          midiMessage.letter = midiMessage.noteProps.letter;
+          midiMessage.octave = midiMessage.noteProps.oct;
+        }
+
         break;
     }
 
@@ -48,13 +56,5 @@ export class MessageDecodingService {
       return rawStatus - Channels.NOTE_ON_CHAN_1 + 1;
     }
     return 0;
-  }
-
-  private decodeOctave(noteData: number): number {
-    return Math.floor(noteData / 12);
-  }
-
-  private decodeNote(noteData: number) {
-    return Notes[noteData % 12];
   }
 }

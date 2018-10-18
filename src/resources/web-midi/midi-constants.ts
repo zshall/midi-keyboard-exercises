@@ -54,28 +54,3 @@ export enum Status {
   RT_CLOCK = 248,
   NOT_YET_SUPPORTED = 256
 }
-
-
-export enum Notes {
-  C,
-  C_SHARP,
-  D,
-  D_SHARP,
-  E,
-  F,
-  F_SHARP,
-  G,
-  G_SHARP,
-  A,
-  A_SHARP,
-  B
-}
-
-/**
- * Scale intervals start at the root note and go up from there.
- * The position in the list + 1 = the scale degree
- */
-export class ScaleIntervals {
-  static readonly MAJOR = [2,2,1,2,2,2,1];
-  static readonly MINOR = [2,1,2,2,1,2,2];
-}
