@@ -16,10 +16,17 @@
   </li>
 </div>
 
-<p><b>MIDI output</b></p>
+<div class="chords">
+  <h4>Detected chords:</h4>
+  <li repeat.for="message of chords">
+    ${message}
+  </li>
+</div>
+
+<!-- <p><b>MIDI output</b></p>
 <select value.bind="selectedOutputId">
   <option repeat.for="output of midiService.outputNames()" model.bind="input.key">${output.value}</option>
-</select>
+</select> -->
 <p>
 <a route-href="route: options">Options</a>
 </p>
