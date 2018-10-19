@@ -1,7 +1,7 @@
-import { MidiService } from "../resources/web-midi/midi-service";
+import { MidiService } from "../resources/app/web-midi/midi-service";
 import { autoinject } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
-import { SettingService } from "resources/settings/setting-service";
+import { SettingService } from "resources/app/settings/setting-service";
 
 @autoinject
 export class Sandbox {

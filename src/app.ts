@@ -1,7 +1,7 @@
 import {RouterConfiguration, Router} from 'aurelia-router';
 import { PLATFORM } from 'aurelia-pal';
 import { autoinject } from "aurelia-framework";
-import { MidiService } from 'resources/web-midi/midi-service';
+import { MidiService } from 'resources/app/web-midi/midi-service';
 
 @autoinject
 export class App {
