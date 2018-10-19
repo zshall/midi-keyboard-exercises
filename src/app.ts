@@ -12,7 +12,9 @@ export class App {
     this.router = router;
     config.title = 'Title';
     config.map([
-      { route: '', moduleId: PLATFORM.moduleName('sandbox/sandbox'), title:'Sandbox' }
+      { route: '', moduleId: PLATFORM.moduleName('sandbox/sandbox'), title:'Sandbox' },
+      { route: 'home', moduleId: PLATFORM.moduleName('sandbox/sandbox'), title:'Sandbox', name: 'home' },
+      { route: 'options', moduleId: PLATFORM.moduleName('settings/settings'), title: 'Options', name: 'options' }
     ]);
   }
 }

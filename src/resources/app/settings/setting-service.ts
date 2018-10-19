@@ -27,7 +27,9 @@ export class SettingService {
 
   // Starting octave
   get startingNote(): string {
-    return localStorage.getItem(SettingConstants.GAME_NOTE_START) || 'C3';
+    return localStorage.getItem(SettingConstants.GAME_NOTE_START)
+      ? localStorage.getItem(SettingConstants.GAME_NOTE_START)
+      : 'C3';
   }
 
   set startingNote(note: string) {

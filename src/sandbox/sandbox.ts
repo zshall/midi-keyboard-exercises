@@ -25,13 +25,12 @@ export class Sandbox {
     }
   }
 
+  detached() {
+    this.subscription.dispose();
+  }
+
   connect() {
-    if (this.midiService.isConnected(this.selectedInputId)) {
-      this.midiService.releaseInput(this.selectedInputId);
-    } else {
-      this.midiService.captureInput(this.selectedInputId);
-      this.settingService.midiAutoconnect = true;
-    }
+    this.midiService.togglePreferredInputConnect();
   }
 
   message = 'Hello sandbox';

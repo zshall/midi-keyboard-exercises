@@ -54,3 +54,8 @@ export enum Status {
   RT_CLOCK = 248,
   NOT_YET_SUPPORTED = 256
 }
+
+export enum MidiEvents {
+  NOTE_OFF = 'noteOff',
+  NOTE_ON = 'noteOn'
+}

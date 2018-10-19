@@ -3,7 +3,7 @@
 
 <p><b>MIDI input</b></p>
 
-<select value.bind="selectedInputId">
+<select value.bind="settingService.preferredMidiInput">
   <option repeat.for="input of midiService.inputNames()" model.bind="input.key">${input.value}</option>
 </select>
 
@@ -20,4 +20,7 @@
 <select value.bind="selectedOutputId">
   <option repeat.for="output of midiService.outputNames()" model.bind="input.key">${output.value}</option>
 </select>
+<p>
+<a route-href="route: options">Options</a>
+</p>
 </template>

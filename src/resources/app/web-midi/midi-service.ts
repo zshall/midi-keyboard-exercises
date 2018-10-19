@@ -3,7 +3,7 @@ import { MidiMessage } from './midi-message';
 import { MessageDecodingService } from './message-decoding-service';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { autoinject } from "aurelia-framework";
-import { Status } from './midi-constants';
+import { Status, MidiEvents } from './midi-constants';
 import {BindingSignaler} from 'aurelia-templating-resources';
 
 @autoinject
@@ -88,15 +88,15 @@ export class MidiService {
       this.settingService.preferredMidiInput = connectionId;
       input.onmidimessage = midiMessage => {
         //this.eventAggregator.publish('midiEvent', midiMessage);
-        const decoded = this.messageDecodingService.decodeMessage(midiMessage);
-        switch(decoded.status) {
+        const decodedNote = this.messageDecodingService.decodeMessage(midiMessage);
+        switch(decodedNote.status) {
           case Status.NOTE_OFF:
-            this.removeCurrentNote(decoded);
-            this.eventAggregator.publish('noteOff', decoded);
+            this.removeCurrentNote(decodedNote);
+            this.eventAggregator.publish(MidiEvents.NOTE_OFF, decodedNote);
             break;
           case Status.NOTE_ON:
-            this.currentNotesPlaying.push(decoded);
-            this.eventAggregator.publish('noteOn', decoded);
+            this.currentNotesPlaying.push(decodedNote);
+            this.eventAggregator.publish(MidiEvents.NOTE_ON, decodedNote);
             break;
         }
       }
@@ -119,9 +119,30 @@ export class MidiService {
     }
   }
 
-  isConnected(connectionId: string) {
+  /**
+   * Whether the input is connected or not.
+   * @param connectionId the key of the midiAccess.inputs enumerator
+   * @returns whether the input is currently connected
+   */
+  isConnected(connectionId: string): boolean {
     const input = this.midiAccess.inputs.get(connectionId);
-    return input && input.onmidimessage;
+    return Boolean(input && input.onmidimessage);
+  }
+
+  /**
+   * Convenience method for connecting or disconnecting from the preferred MIDI input
+   * This is used in "Connect / Disconnect" buttons
+   * @returns whether the input is currently connected
+   */
+  togglePreferredInputConnect(): boolean {
+    const input = this.settingService.preferredMidiInput;
+    if (this.isConnected(input)) {
+      this.releaseInput(input);
+    } else {
+      this.captureInput(input);
+      this.settingService.midiAutoconnect = true;
+    }
+    return this.isConnected(input);
   }
 
   /**

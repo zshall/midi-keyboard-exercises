@@ -1,0 +1,27 @@
+<template>
+<h1>Options</h1>
+<div class="form-group">
+  <label for="midi-input">MIDI input device:</label>
+  <select id="midi-input" value.bind="settingService.preferredMidiInput">
+    <option repeat.for="input of midiService.inputNames()" model.bind="input.key">${input.value}</option>
+  </select>
+  <button click.delegate="connect()">${midiService.isConnected(settingService.preferredMidiInput) ? 'Disconnect' : 'Connect' & signal: 'connect-signal'}</button>
+</div>
+<div class="form-group">
+  <label for="midi-range">Note range of MIDI keyboard:</label>
+  <div class="midi-range">${settingService.startingNote} - ${settingService.endingNote}</div>
+  <button click.delegate="defineMidiRange()">Define range</button>
+  <div if.bind="rangeDefinitionStep === 1">Play lowest physical key on your MIDI keyboard.</div>
+  <div if.bind="rangeDefinitionStep === 2">Play highest physical key on your MIDI keyboard.</div>
+</div>
+<div class="form-group">
+  <label for="key">Play music in:</label>
+  <select id="key" value.bind="settingService.musicKey">
+      <option repeat.for="key of keys" model.bind="key">${key}</option>
+  </select>
+  <select value.bind="settingService.musicScale">
+    <option repeat.for="scale of scales" model.bind="scale">${scale}</option>
+  </select>
+</div>
+<a route-href="route: home">Back</a>
+</template>
